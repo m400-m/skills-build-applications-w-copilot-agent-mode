@@ -20,6 +20,7 @@ from rest_framework import routers
 from .views import UserViewSet, TeamViewSet, ActivityViewSet, LeaderboardViewSet, WorkoutViewSet
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
+import os
 
 router = routers.DefaultRouter()
 router.register(r'users', UserViewSet)
@@ -30,16 +31,18 @@ router.register(r'workouts', WorkoutViewSet)
 
 @api_view(['GET'])
 def api_root(request, format=None):
+    codespace_name = os.environ.get('CODESPACE_NAME', 'localhost')
+    base_url = f"https://{codespace_name}-8000.app.github.dev/api" if codespace_name != 'localhost' else "/api"
     return Response({
-        'users': '/users/',
-        'teams': '/teams/',
-        'activities': '/activities/',
-        'leaderboard': '/leaderboard/',
-        'workouts': '/workouts/',
+        'users': f'{base_url}/users/',
+        'teams': f'{base_url}/teams/',
+        'activities': f'{base_url}/activities/',
+        'leaderboard': f'{base_url}/leaderboard/',
+        'workouts': f'{base_url}/workouts/',
     })
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', api_root, name='api_root'),
-    path('', include(router.urls)),
+    path('api/', include(router.urls)),
 ]
